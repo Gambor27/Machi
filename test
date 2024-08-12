@@ -1,0 +1,790 @@
+{
+	"config": {
+		"default": {
+			"globalProperties": {
+				"EventViewerSourceName": "<ExeName><ServiceInstanceId? (*)>",
+				"FileSourceName":        "<ExeName><ServiceInstanceId?.*>"
+			},
+			"sinks": [ "//File Trace Async", "//File Trace Sync", "File Info (Logstash)", "EventViewer Info", "ETW Info", "//ETW Trace", "//ETW MOF-based Info", "//ETW MOF-based Trace",
+
+			"// To fix any non-working sink, move it to the end of the list above, restart your application and search for warnings in working sinks.",
+
+			"// testtime enabled sinks, do not edit",
+			"//StdOut Test", "//File Test" ]
+		},
+    "serviceType": {
+      "Varonis.Infra.VSB.PerfManager": {
+        "append": {
+          "sinks": [ "//File Trace Async", "Console Info" ]
+        }
+      },
+      "VrnsRealTimeAlertsSvc": {
+        "prepend": {
+          "globalProperties": {
+            "ExeName": "<ExeName><f? *>"
+          }
+        },
+        "append": {
+
+          "sinks": [ "//File Trace Async", "//Core File Trace Sync" ]
+        }
+      },
+      "Varonis.Core.Resolver": {
+        "prepend": {
+          "globalProperties": {
+            "ExeName": "<ExeName><f? *>"
+          }
+        },
+        "append": {
+          "sinks": [ "//File Trace Async", "//Core File Trace Sync" ]
+        }
+      },
+      "Varonis.Core.PatternAggregator": {
+        "prepend": {
+          "globalProperties": {
+            "ExeName": "<ExeName><f? *>"
+          }
+        },
+        "append": {
+          "sinks": [ "//File Trace Async", "//Core File Trace Sync" ]
+        }
+      },
+      "Varonis.Core.Forwarder": {
+        "prepend": {
+          "globalProperties": {
+            "ExeName": "<ExeName><type? *>"
+          }
+        },
+        "append": {
+          "sinks": [ "//File Trace Async", "//Core File Trace Sync" ]
+        }
+      },
+      "Varonis.Forwarder.Service": {
+        "prepend": {
+          "globalProperties": {
+            "ExeName": "<ExeName><p? *>"
+          }
+        },
+        "append": {
+          "sinks": [ "//File Trace Async", "//Core File Trace Sync" ]
+        }
+			}
+			, "//testhost.x86": {
+        "prepend": {
+          "globalProperties": {
+            "ExeName": "<ExeName><parentprocessid? *: qq>"
+          }
+        },
+        "override": {
+          "globalProperties": {
+            "FileSourceName": "<ExeName>"
+          }
+        }
+			}
+			, "Varonis.Infra.TopologyManager": {
+        "append": { "sinks": [ "EventViewer Info RabbitMQ" ] },
+        "serviceInstanceId": {
+          "//RabbitMQ": {
+            "append": {
+              "sinks": [ "DCF File Info" ]
+            }
+          }
+        }
+			}
+			, "Varonis.Core.FileWalkWorker": {
+        "prepend": {
+          "globalProperties": {
+            "ExeName": "<ExeName><worker? *><dcf? dcf>"
+          }
+        },
+        "append": { "sinks": [ "//File Trace Async", "//Core File Trace Sync" ] }
+      }
+      , "Varonis.Core.FileWalkDispatcher": {
+        "prepend": {
+          "globalProperties": {
+            "ExeName": "<ExeName><flavor? *>"
+          }
+        },
+        "append": { "sinks": [ "//File Trace Async", "//Core File Trace Sync" ] }
+      }
+      , "Varonis.CEP.Enhancer.Infra.Service": {
+        "prepend": {
+          "globalProperties": {
+            "ExeName": "<ExeName><sp? *>"
+          }
+        },
+        "append": { "sinks": [ "//File Trace Async" ] }
+			}
+			, "Varonis.Core.ResourceDetection":        { "append": { "sinks": [ "//File Trace Async", "//Resource Detection File Trace Sync" ] } }
+			, "Varonis.Core.DBAdapter.Svc":            { "append": { "sinks": [ "//File Trace Async", "//DBAdapter Resource Detection File Trace Sync" ] } }
+			, "Varonis.DCF.ScopePlayer.Service":       { "append": { "sinks": [ "//DCF File Trace Async", "DCF File Info" ] } }
+			, "Varonis.DCF.MatchFind.Service":         { "append": { "sinks": [ "//DCF File Trace Async", "DCF File Info" ] } }
+			, "Varonis.DCF.ContentExtraction.Service": { "append": { "sinks": [ "//DCF File Trace Async", "DCF File Info" ] } }
+			, "Varonis.DCF.ResultUpdater.Service":     { "append": { "sinks": [ "//DCF File Trace Async", "DCF File Info" ] } }
+			, "Varonis.DCF.ResultsDBMerge.Service":    { "append": { "sinks": [ "//DCF File Trace Async", "DCF File Info" ] } }
+			, "Varonis.DCF.Services.Cleanup.Service":  { "append": { "sinks": [ "//DCF File Trace Async", "DCF File Info" ] } }
+			, "DcfDiagnosticsTool":                    { "append": { "sinks": [ "//DCF File Trace Async", "DCF File Info" ] } }
+			, "Varonis.DCE.Services.FA.WebService":    { "append": { "sinks": [ "//DCF File Trace Async", "DCF File Info" ] } }
+			, "Varonis.DCE.Monitor.WebService":        { "append": { "sinks": [ "//DCF File Trace Async", "DCF File Info" ] } }
+			, "Varonis.DCE.WebApi.WebService":         { "append": { "sinks": [ "//DCF File Trace Async", "DCF File Info" ] } }
+			, "Varonis.UI.ManagementConsole.Shell":    { "override": { "sinks": [ "ETW Info" ] } }
+			, "SetUp":                                 { "remove": { "sinks": [ "EventViewer Info" ] } }
+			, "Varonis.Cloud.Streams":                 { "append": { "sinks": [ "File Error", "File Warn", "File Info", "File Debug" ] } }
+    }
+	},
+	"sinks": {
+		"EventViewer Info": {
+			"format":          "%EventName%EventId{903}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes%Properties%AggregationCount%Message",
+			"formatMessageId": "%EventName%EventId{904}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes%Properties%AggregationCount%Message%WinMessageId%WinMessageText",
+			"//formatSummary":   "%EventName%EventId{905}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes%Properties%Message%AggregationCount",
+			"eventViewerSinkDetails": {
+				"eventLogFolder": "Varonis",
+				"maxSize": "16 MiB",
+				"sourceName": "<EventViewerSourceName>",
+				"eventMessageFile": "<DllPath>\\VrnsMsg.dll",
+				"categoryCount": 3,
+				"maxMessageChunkCount": 155,
+				"messageChunkIndexAttrName": "ChunkIndex",
+				"messageSizeAttrName": "MessageSize"
+			},
+			"acceptFilters": {
+				"Info": {
+					"severityLevel": "Info",
+					"scopes": { "excludedScopes": [ "External", "CoreLog.EventLog", "CoreLogTest.EventLog" ] }
+				}
+			},
+			"aggregators": {
+				"Info": {
+					"numOfMessagesBeforeSuppression": 1,
+					"summaryMessage": {
+						"//format": "%AggregationCount message(s) like '%AggregationString' were emitted in last %AggregationInterval{.2S} seconds",
+						"delayed": {
+							"delayFromFirstMessageInSeconds": 900
+						},
+						"enableTrivial": false
+					},
+					"filters": {
+						"Info": {
+							"severityLevel": "Info",
+							"tags": {
+								"Aggregation": {
+									"isMandatory": true
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"EventViewer Info RabbitMQ": {
+			"format":          "%EventName%EventId{903}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes%Properties%AggregationCount%Message",
+			"formatMessageId": "%EventName%EventId{904}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes%Properties%AggregationCount%Message%WinMessageId%WinMessageText",
+			"eventViewerSinkDetails": {
+				"eventLogFolder": "Varonis.Externals",
+				"maxSize": "16 MiB",
+				"sourceName": "RabbitMQ",
+				"eventMessageFile": "<DllPath>\\VrnsMsg.dll",
+				"categoryCount": 3,
+				"maxMessageChunkCount": 155,
+				"messageChunkIndexAttrName": "ChunkIndex",
+				"messageSizeAttrName": "MessageSize"
+			},
+			"acceptFilters": {
+				"Info": {
+					"severityLevel": "Info",
+					"scopes": { "includedScopes": [ "External.RabbitMQ" ] }
+				}
+			},
+			"aggregators": {
+				"Info": {
+					"numOfMessagesBeforeSuppression": 1,
+					"summaryMessage": {
+						"delayed": {
+							"delayFromFirstMessageInSeconds": 30
+						},
+						"enableTrivial": false
+					},
+					"filters": {
+						"Info": {
+							"severityLevel": "Info",
+							"tags": {
+								"Aggregation": {
+									"isMandatory": true
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"ETW MOF-based Info": {
+			"format":          "%EventName%EventId{903}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes{(=;)}%Properties%AggregationCount%Message",
+			"formatMessageId": "%EventName%EventId{904}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes{(=;)}%Properties%AggregationCount%Message%WinMessageId%WinMessageText",
+			"etwSinkDetails": {
+				"sessionName": "Varonis",
+				"//generatedMofFileName": "<DllPath>\\Logs\\default.mof",
+				"maxAllowedBytesPerPeriod": "100 MiB",
+				"quotaPeriodInSecs": 3600,
+				"maxMessageChunkCount": 1,
+				"messageChunkIndexAttrName": "ChunkIndex",
+				"messageSizeAttrName": "MessageSize"
+			},
+			"acceptFilters": {
+				"Info": {
+					"severityLevel": "Info"
+				}
+			},
+			"aggregators": {
+				"Info": {
+					"numOfMessagesBeforeSuppression": 1,
+					"summaryMessage": {
+						"delayed": {
+							"delayFromFirstMessageInSeconds": 900
+						},
+						"enableTrivial": false
+					},
+					"filters": {
+						"Info": {
+							"severityLevel": "Info",
+							"tags": {
+								"Aggregation": {
+									"isMandatory": true
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"ETW MOF-based Trace": {
+			"format":          "%EventName%EventId{903}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes{(=;)}%Properties%AggregationCount%Message",
+			"formatMessageId": "%EventName%EventId{904}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes{(=;)}%Properties%AggregationCount%Message%WinMessageId%WinMessageText",
+			"etwSinkDetails": {
+				"sessionName": "Varonis",
+				"//generatedMofFileName": "<DllPath>\\Logs\\default.mof",
+				"maxAllowedBytesPerPeriod": "100 MiB",
+				"quotaPeriodInSecs": 3600,
+				"maxMessageChunkCount": 1,
+				"messageChunkIndexAttrName": "ChunkIndex",
+				"messageSizeAttrName": "MessageSize"
+			},
+			"acceptFilters": {
+				"Trace": {
+					"severityLevel": "Trace"
+				}
+			}
+		},
+		"ETW Info": {
+			"format":          "%EventName%EventId{903}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes{(=;)}%Properties%AggregationCount%Message%Index",
+			"formatMessageId": "%EventName%EventId{904}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes{(=;)}%Properties%AggregationCount%Message%WinMessageId%WinMessageText%Index",
+			"etwManifestBasedSinkDetails": {
+				"sessionName": "Varonis",
+				"providerGuid": "{AFEA5216-91E2-F61E-F617-77C27262ACC3}",
+				"//generatedManifestFileName": "<DllPath>\\Logs\\default.manifest.xml",
+				"maxAllowedBytesPerPeriod": "10 MiB",
+				"quotaPeriodInSecs": 3600,
+				"sendManifest": true,
+				"maxMessageChunkCount": 155,
+				"messageChunkIndexAttrName": "ChunkIndex",
+				"messageSizeAttrName": "MessageSize"
+			},
+			"acceptFilters": {
+				"Info": {
+					"severityLevel": "Info"
+				}
+			},
+			"aggregators": {
+				"Info": {
+					"numOfMessagesBeforeSuppression": 1,
+					"summaryMessage": {
+						"delayed": {
+							"delayFromFirstMessageInSeconds": 900
+						},
+						"enableTrivial": false
+					},
+					"filters": {
+						"Info": {
+							"severityLevel": "Info",
+							"tags": {
+								"Aggregation": {
+									"isMandatory": true
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"ETW Trace": {
+			"format":          "%EventName%EventId{903}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes{(=;)}%Properties%AggregationCount%Message%Index",
+			"formatMessageId": "%EventName%EventId{904}%ExeName%ExeVersion%GP{SiteId}%ProcessId%ThreadId%Scope%Attributes{(=;)}%Properties%AggregationCount%Message%WinMessageId%WinMessageText%Index",
+			"etwManifestBasedSinkDetails": {
+				"sessionName": "Varonis",
+				"providerGuid": "{AFEA5216-91E2-F61E-F617-77C27262ACC3}",
+				"//generatedManifestFileName": "<DllPath>\\Logs\\default.manifest.xml",
+				"maxAllowedBytesPerPeriod": "10 MiB",
+				"quotaPeriodInSecs": 3600,
+				"sendManifest": true,
+				"maxMessageChunkCount": 155,
+				"messageChunkIndexAttrName": "ChunkIndex",
+				"messageSizeAttrName": "MessageSize"
+			},
+			"acceptFilters": {
+				"Info": {
+					"severityLevel": "Trace"
+				}
+			}
+		},
+		"File Info (Logstash)": {
+			"format":          "[[[[%Severity] [%LocalTime] [%ProcessId] [%ThreadId] [%EventId{903}] [%EventName] [%ExeName] [%ExeVersion] [%GP{SiteId}] [%Scope] [%Attributes{[=;]}] [%Properties] [%AggregationCount] %Message\r\n",
+			"formatMessageId": "[[[[%Severity] [%LocalTime] [%ProcessId] [%ThreadId] [%EventId{904}] [%EventName] [%ExeName] [%ExeVersion] [%GP{SiteId}] [%Scope] [%Attributes{[=;]}] [%Properties] [%AggregationCount] %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<Host>.<FileSourceName><appId?.*>.inf.*.txt",
+				"maxFilesCount": 3,
+				"maxFileSize": "10 MiB"
+			},
+			"acceptFilters": {
+				"Info": {
+					"severityLevel": "Info",
+					"scopes": { "excludedScopes": [ "External" ] }
+				}
+			},
+			"flushFilters": { "Info": { "severityLevel": "Info" } },
+			"aggregators": {
+				"Info": {
+					"numOfMessagesBeforeSuppression": 1,
+					"summaryMessage": {
+						"delayed": {
+							"delayFromFirstMessageInSeconds": 900
+						},
+						"enableTrivial": false
+					},
+					"filters": {
+						"Info": {
+							"severityLevel": "Info",
+							"tags": {
+								"Aggregation": {
+									"isMandatory": true
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"File Trace Async": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<Host>.<FileSourceName><appId?.*>.trc.*.txt",
+				"//fileName": "<DllPath>\\Logs\\<Host>.<LocalTime>.<FileSourceName><appId?.*>.<ProcessId>.trc.*.txt",
+				"maxFilesCount": 10,
+				"maxFileSize": "64 MiB"
+			},
+			"acceptFilters": {
+				"Trace": {
+					"severityLevel": "Trace",
+                    "File Trace Async": {
+                        "format":          "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %B%Message\r\n",
+                        "formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+                        "fileSinkDetails": {
+                            "fileName": "<DllPath>\\Logs\\<Host>.<FileSourceName><appId?.*>.trc.*.txt",
+                            "//fileName": "<DllPath>\\Logs\\<Host>.<LocalTime>.<FileSourceName><appId?.*>.<ProcessId>.trc.*.txt",
+                            "maxFilesCount": 10,
+                            "maxFileSize": "64 MiB"
+                        },
+                        "acceptFilters": {
+                            "Trace": {
+                                "severityLevel": "Trace",
+                                "properties":{
+                                "filerId":{
+                                "includedSections":["12"],
+                                "excludedSections":[]
+                                }
+                            }	
+                                
+                            }
+                        },
+                        "flushFilters": { "Info": { "severityLevel": "Info" } }
+                    }
+				}
+			},
+			"flushFilters": { "Info": { "severityLevel": "Info" } }
+		},
+		"File Trace Sync": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<Host>.<FileSourceName><appId?.*>.trc.*.txt",
+				"//fileName": "<DllPath>\\Logs\\<Host>.<LocalTime>.<FileSourceName><appId?.*>.<ProcessId>.trc.*.txt",
+				"maxFilesCount": 10,
+				"maxFileSize": "64 MiB"
+			},
+			"acceptFilters": {
+				"Trace": {
+					"severityLevel": "Trace",
+					"scopes": {
+						"includedScopes": [ "" ],
+						"excludedScopes": []
+					},
+					"tags": {
+						"//qqq": {
+							"includedSections": [ "" ],
+							"excludedSections": [],
+							"delim": "."
+						}
+					},
+					"properties": {
+						"//path": {
+							"includedSections": [ "" ],
+							"excludedSections": [],
+							"delim": "\\"
+						}
+					},
+					"stack": {
+						"initialState": "ENABLED",
+						"enableOnEnter": {
+							"includedScopes": [],
+							"excludedScopes": []
+						},
+						"disableOnEnter": {
+							"includedScopes": [],
+							"excludedScopes": []
+						}
+					}
+				}
+			},
+			"flushFilters": { "Trace": { "severityLevel": "Trace" } }
+		},
+		"Console Info": {
+			"format":          "%Message",
+			"formatMessageId": "%Message failed with error=%WinMessageId: '%WinMessageText'",
+			"consoleSinkDetails": {
+				"severityLevelColors": {
+					"Error": { "foregroundColor": "BrightRed" },
+					"Warn": { "foregroundColor": "BrightYellow" },
+					"Info": { "foregroundColor": "BrightWhite" }
+				}
+			},
+			"acceptFilters": {
+				"Trace": {
+					"severityLevel": "Info",
+					"scopes": {
+						"includedScopes": [ "" ],
+						"excludedScopes": [ "Vrns.LogConfigByFiles", "Vrns.Log" ]
+					}
+				}
+			},
+			"flushFilters": { "Info": { "severityLevel": "Info" } }
+		},
+		"Console Trace": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"consoleSinkDetails": {
+				"severityLevelColors": {
+					"Error": { "foregroundColor": "BrightRed" },
+					"Warn": { "foregroundColor": "BrightYellow" },
+					"Info": { "foregroundColor": "BrightWhite" }
+				}
+			},
+			"acceptFilters": {
+				"Trace": {
+					"severityLevel": "Trace",
+					"scopes": {
+						"includedScopes": [ "" ],
+						"excludedScopes": [ ]
+					}
+				}
+			},
+			"flushFilters": { "Trace": { "severityLevel": "Trace" } }
+		},
+		"StdOut Test": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"stdOutSinkDetails": {},
+			"acceptFilters": { "Test": { "severityLevel": "Trace", "scopes": { "includedScopes": [ "" ] } } },
+			"flushFilters": { "Trace": { "severityLevel": "Trace" } }
+		},
+		"File Test": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": { "fileName": "<DllPath>\\Logs\\<FileSourceName><appId?.*>.<ProcessId>.test.txt" },
+			"acceptFilters": { "Test": { "severityLevel": "Trace", "scopes": { "includedScopes": [ "" ] } } },
+			"flushFilters": { "Trace": { "severityLevel": "Trace" } }
+		},
+		"Core File Trace Sync": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<FileSourceName>\\<Host>.<FileSourceName>.trc.*.txt",
+				"maxFilesCount": 10,
+				"maxFileSize": "10 MiB"
+			},
+			"acceptFilters": {
+				"AllTraces": {
+					"severityLevel": "Trace",
+					"scopes": {
+						"includedScopes": [ "" ],
+						"excludedScopes": ["VSB", "AMQP", "Vrns", "Varonis.Infra", "Task", "DelayedTask", "AMQPCreateTcpConnection", "VrnsInfraLocalRpcClient", "RepeatedTask"]
+					}
+				}
+			},
+			"aggregators": {
+				"Info": {
+					"numOfMessagesBeforeSuppression": 1,
+					"summaryMessage": {
+						"//format": "%AggregationCount message(s) like '%AggregationString' were emitted in last %AggregationInterval{.2S} seconds",
+						"delayed": {
+							"delayFromFirstMessageInSeconds": 900
+						},
+						"enableTrivial": false
+					},
+					"filters": {
+						"Info": {
+							"severityLevel": "Info",
+							"tags": {
+								"Aggregation": {
+									"isMandatory": true
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		, "DCF File Info": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<Host>.<FileSourceName><appId?.*>.DCF.inf.*.txt",
+				"maxFilesCount": 3,
+				"maxFileSize": "10 MiB"
+			},
+			"acceptFilters": {
+				"Trace": {
+					"severityLevel": "Info",
+					"scopes": {
+						"includedScopes": [ "Varonis.DCF", "Varonis.DCE" ],
+						"excludedScopes": [ ]
+					}
+				}
+			},
+			"flushFilters": { "Info": { "severityLevel": "Info" } }
+		}
+		, "DCF File Trace Async": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<Host>.<FileSourceName><appId?.*>.DCF.trc.*.txt",
+				"maxFilesCount": 3,
+				"maxFileSize": "10 MiB"
+			},
+			"acceptFilters": {
+				"Trace": {
+					"severityLevel": "Trace",
+					"scopes": {
+						"includedScopes": [ "Varonis.DCF", "Varonis.DCE" ],
+						"excludedScopes": [ ]
+					}
+				}
+			},
+			"flushFilters": { "Info": { "severityLevel": "Info" } }
+		},
+		"Resource Detection File Trace Sync": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<FileSourceName>\\<Host>.<FileSourceName>.trc.*.txt",
+				"maxFilesCount": 10,
+				"maxFileSize": "10 MiB"
+			},
+			"acceptFilters": {
+				"AllTraces": {
+					"severityLevel": "Trace",
+					"scopes": {
+						"includedScopes": [ "" ],
+						"excludedScopes": ["VSB", "AMQP", "Vrns", "Varonis.Infra", "Task", "DelayedTask", "AMQPCreateTcpConnection", "VrnsInfraLocalRpcClient", "RepeatedTask", "ServiceTemplate", "JobCenter", "VSBGetDefaultContextPtr"]
+					}
+				}
+			}
+		},
+		"DBAdapter Resource Detection File Trace Sync": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Indent%Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<FileSourceName>\\Resource Detection\\<Host>.<FileSourceName>.trc.*.txt",
+				"maxFilesCount": 10,
+				"maxFileSize": "10 MiB"
+			},
+			"acceptFilters": {
+				"AllTraces": {
+					"severityLevel": "Trace",
+					"scopes": {
+						"includedScopes": [ "DBAdapter.ResourceDetectionPlugin" ],
+						"excludedScopes": []
+					}
+				}
+			}
+		},
+		"File Error": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<Host>.<FileSourceName><appId?.*>.err.*.txt",
+				"maxFilesCount": 10,
+				"maxFileSize": "20 MiB"
+			},
+			"acceptFilters": {
+				"Error": {
+					"severityLevel": "Error"
+				}
+			},
+			"aggregators": {
+				"Error": {
+					"numOfMessagesBeforeSuppression": 10,
+					"summaryMessage": {
+						"delayed": {
+							"delayFromFirstMessageInSeconds": 3600
+						},
+						"enableTrivial": false
+					},
+					"filters": {
+						"Error": {
+							"severityLevel": "Error",
+							"tags": {
+								"Aggregation": {
+									"isMandatory": true
+								}
+							}
+						}
+					}
+				}
+			},
+			"flushFilters": {
+				"Info": {
+					"severityLevel": "Info"
+				}
+			}
+		},
+		"File Warn": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<Host>.<FileSourceName><appId?.*>.wrn.*.txt",
+				"maxFilesCount": 10,
+				"maxFileSize": "20 MiB"
+			},
+			"acceptFilters": {
+				"Warn": {
+					"severityLevel": "Warn"
+				}
+			},
+			"aggregators": {
+				"Warn": {
+					"numOfMessagesBeforeSuppression": 10,
+					"summaryMessage": {
+						"delayed": {
+							"delayFromFirstMessageInSeconds": 3600
+						},
+						"enableTrivial": false
+					},
+					"filters": {
+						"Warn": {
+							"severityLevel": "Warn",
+							"tags": {
+								"Aggregation": {
+									"isMandatory": true
+								}
+							}
+						}
+					}
+				}
+			},
+			"flushFilters": {
+				"Info": {
+					"severityLevel": "Info"
+				}
+			}
+		},
+		"File Info": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<Host>.<FileSourceName><appId?.*>.inf.*.txt",
+				"maxFilesCount": 10,
+				"maxFileSize": "20 MiB"
+			},
+			"acceptFilters": {
+				"Info": {
+					"severityLevel": "Info"
+				}
+			},
+			"aggregators": {
+				"Info": {
+					"numOfMessagesBeforeSuppression": 10,
+					"summaryMessage": {
+						"delayed": {
+							"delayFromFirstMessageInSeconds": 3600
+						},
+						"enableTrivial": false
+					},
+					"filters": {
+						"Info": {
+							"severityLevel": "Info",
+							"tags": {
+								"Aggregation": {
+									"isMandatory": true
+								}
+							}
+						}
+					}
+				}
+			},
+			"flushFilters": {
+				"Info": {
+					"severityLevel": "Info"
+				}
+			}
+		},
+		"File Debug": {
+			"format":          "[%ThreadId] [%LocalTime] [%Severity] %Scope%Attributes%Properties: %B%Message\r\n",
+			"formatMessageId": "[%ThreadId] [%LocalTime] [%Severity] %Scope%Attributes%Properties: %Message failed with error=%WinMessageId: '%WinMessageText'\r\n",
+			"fileSinkDetails": {
+				"fileName": "<DllPath>\\Logs\\<Host>.<FileSourceName><appId?.*>.dbg.*.txt",
+				"maxFilesCount": 10,
+				"maxFileSize": "100 MiB"
+			},
+			"acceptFilters": {
+				"Debug": {
+					"severityLevel": "Debug"
+				}
+			},
+			"aggregators": {
+				"Debug": {
+					"numOfMessagesBeforeSuppression": 10,
+					"summaryMessage": {
+						"delayed": {
+							"delayFromFirstMessageInSeconds": 3600
+						},
+						"enableTrivial": false
+					},
+					"filters": {
+						"Debug": {
+							"severityLevel": "Debug",
+							"tags": {
+								"Aggregation": {
+									"isMandatory": true
+								}
+							}
+						}
+					}
+				}
+			},
+			"flushFilters": {
+				"Info": {
+					"severityLevel": "Info"
+				}
+			}
+		}
+	}
+}
